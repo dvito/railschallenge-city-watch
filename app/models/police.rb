@@ -1,0 +1,3 @@
+class Police < Responder
+
+end
