@@ -1,5 +1,9 @@
 class Responder < ActiveRecord::Base
 
+  self.primary_key = "name"
+
+  belongs_to :emergency, foreign_key: "emergency_code"
+
   validates :type,
             presence: true
   validates :name,
@@ -9,25 +13,28 @@ class Responder < ActiveRecord::Base
             presence: true,
             inclusion: { in: 1..5 }
 
-  belongs_to :emergency, foreign_key: "emergency_code"
-
   def self.total_capacity
-    sum(:capacity)
+    all
   end
 
   def self.available_capacity
-    where("emergency_code IS NULL").sum(:capacity)
+    where("emergency_code IS NULL")
   end
 
   def self.on_duty_capacity
-    where(on_duty: true).sum(:capacity)
+    where(on_duty: true)
   end
 
   def self.available_and_on_duty_capacity
-    where("emergency_code IS NULL").where(on_duty: true).sum(:capacity)
+    where("emergency_code IS NULL").where(on_duty: true)
   end
 
   def self.capacity_report
-    [total_capacity, available_capacity, on_duty_capacity, available_and_on_duty_capacity]
+    [
+      total_capacity.sum(:capacity), 
+      available_capacity.sum(:capacity), 
+      on_duty_capacity.sum(:capacity), 
+      available_and_on_duty_capacity.sum(:capacity)
+    ]
   end
 end

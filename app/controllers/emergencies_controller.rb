@@ -10,9 +10,6 @@ class EmergenciesController < ApplicationController
   # GET /emergencies/1
   # GET /emergencies/1.json
   def show
-    if !@emergency
-      raise ActiveRecord::RecordNotFound
-    end
     respond_to do |format|
       format.json { render :show, status: :ok, location: @emergency }
     end
@@ -30,19 +27,13 @@ class EmergenciesController < ApplicationController
   # POST /emergencies
   # POST /emergencies.json
   def create
-    begin
-      @emergency = Emergency.new(create_emergency_params)
+    @emergency = Emergency.new(create_emergency_params)
 
-      respond_to do |format|
-        if @emergency.save
-          format.json { render :show, status: :created, location: @emergency }
-        else
-          format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
-        end
-      end
-    rescue ActionController::UnpermittedParameters => e
-      respond_to do |format|
-        format.json { render json: { message: e.message }, status: :unprocessable_entity }
+    respond_to do |format|
+      if @emergency.save
+        format.json { render :show, status: :created, location: @emergency }
+      else
+        format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
       end
     end
   end
@@ -50,17 +41,11 @@ class EmergenciesController < ApplicationController
   # PATCH/PUT /emergencies/1
   # PATCH/PUT /emergencies/1.json
   def update
-    begin
-      respond_to do |format|
-        if @emergency.update(update_emergency_params)
-          format.json { render :show, status: :ok, location: @emergency }
-        else
-          format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
-        end
-      end
-    rescue ActionController::UnpermittedParameters => e
-      respond_to do |format|
-        format.json { render json: { message: e.message }, status: :unprocessable_entity }
+    respond_to do |format|
+      if @emergency.update(update_emergency_params)
+        format.json { render :show, status: :ok, location: @emergency }
+      else
+        format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
       end
     end
   end
@@ -78,7 +63,7 @@ class EmergenciesController < ApplicationController
   
   # Use callbacks to share common setup or constraints between actions.
   def set_emergency
-    @emergency = Emergency.find_by(code: params[:id])
+    @emergency = Emergency.find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

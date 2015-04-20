@@ -19,12 +19,8 @@ class RespondersController < ApplicationController
   # GET /responders/1
   # GET /responders/1.json
   def show
-     respond_to do |format|
-      if @responder
-        format.json { render :show, status: :ok, location: responder_url(id: @responder.id) }
-      else
-        format.json { render file: "#{Rails.root}/public/404.json", status: :not_found}
-      end
+    respond_to do |format|
+      format.json { render :show, status: :ok, location: responder_url(@responder) }
     end
   end
 
@@ -40,19 +36,13 @@ class RespondersController < ApplicationController
   # POST /responders
   # POST /responders.json
   def create
-    begin
-      @responder = Responder.new(create_responder_params)
+    @responder = Responder.new(create_responder_params)
 
-      respond_to do |format|
-        if @responder.save
-          format.json { render :show, status: :created, location: responder_url(id: @responder.id) }
-        else
-          format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
-        end
-      end
-    rescue ActionController::UnpermittedParameters => e
-      respond_to do |format|
-        format.json { render json: { message: e.message }, status: :unprocessable_entity }
+    respond_to do |format|
+      if @responder.save
+        format.json { render :show, status: :created, location: responder_url(@responder) }
+      else
+        format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
       end
     end
   end
@@ -60,17 +50,11 @@ class RespondersController < ApplicationController
   # PATCH/PUT /responders/1
   # PATCH/PUT /responders/1.json
   def update
-    begin
-      respond_to do |format|
-        if @responder.update(update_responder_params)
-          format.json { render :show, status: :ok, location: responder_url(id: @responder.id) }
-        else
-          format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
-        end
-      end
-    rescue ActionController::UnpermittedParameters => e
-      respond_to do |format|
-        format.json { render json: { message: e.message }, status: :unprocessable_entity }
+    respond_to do |format|
+      if @responder.update(update_responder_params)
+        format.json { render :show, status: :ok, location: responder_url(@responder) }
+      else
+        format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
       end
     end
   end
@@ -88,7 +72,7 @@ class RespondersController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_responder
-    @responder = Responder.find_by(name: params[:id])
+    @responder = Responder.find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
