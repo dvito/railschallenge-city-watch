@@ -64,6 +64,7 @@ class EmergenciesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_emergency
     @emergency = Emergency.find(params[:id])
+    raise ActiveRecord::RecordNotFound if @emergency == nil
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

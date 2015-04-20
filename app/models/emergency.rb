@@ -15,44 +15,46 @@ class Emergency < ActiveRecord::Base
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  after_create :dispatch, 
-    if: Proc.new { |model| model.resolved_at == nil }
+  after_create :dispatch
   after_save :relieve_responders, 
-    if: Proc.new { |model| model.resolved_at != nil && model.responders.count != 0 }
+    if: Proc.new { |model| model.resolved_at != nil }
   
   def dispatch
     ["Fire", "Police", "Medical"].each do |type|
       if send("#{type.downcase}_severity") > 0
-        dispatch_by_type(type, send("#{type.downcase}_severity"))
+        dispatch_by_type_and_severity(type, send("#{type.downcase}_severity"))
       end
-    end
-    # determine_full_response
-    if fires.sum(:capacity) >= fire_severity &&
-      polices.sum(:capacity) >= police_severity &&
-      medicals.sum(:capacity) >= medical_severity
-        full_response = true
+      check_type_and_severity(type, send("#{type.downcase}_severity"))
     end
     save!
   end
 
-  def dispatch_by_type(type, severity)
-    # first check that there is one with enough capacity
-    if Responder.available_and_on_duty_capacity.where("capacity <= #{severity}").sum(:capacity) > severity
-      # next check that ones with less capcity, can cover it by adding them together
-      Responder.available_and_on_duty_capacity.where("capacity <= #{severity}").order("capacity DESC").each do |responder|
-        if severity >= 0
-          severity -= responder.capacity
-          responders << responder
-        end
-      end
+  def check_type_and_severity(type, severity)
+    if responders && responders.by_type(type).sum(:capacity) >= severity 
+      full_response = true 
     else
-      Responder.available_and_on_duty_capacity.where("capacity >= #{severity}").order("capacity ASC").each do |responder|
-        if severity >= 0
-          severity -= responder.capacity
-          responders << responder
-        end
+      if severity == 0
+        full_response = true 
+      else
+        full_response = false
       end
-    end 
+    end
+  end
+
+  def dispatch_by_type_and_severity(type, severity)
+    type.constantize.on_duty.available.with_capacity(severity).order("capacity ASC").each do |responder|
+        if severity > 0
+          responders << responder
+          severity -= responder.capacity
+        end
+    end
+    type.constantize.on_duty.available.
+      order("capacity DESC").each do |responder|
+      if severity > 0
+        responders << responder
+        severity -= responder.capacity
+      end
+    end
   end
 
   def self.full_responses
@@ -63,7 +65,7 @@ class Emergency < ActiveRecord::Base
   end
 
   def relieve_responders
-    responders.destroy_all
+    responders = []
   end
 
 end

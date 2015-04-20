@@ -13,28 +13,20 @@ class Responder < ActiveRecord::Base
             presence: true,
             inclusion: { in: 1..5 }
 
-  def self.total_capacity
-    all
-  end
+  scope :on_duty, -> { where(on_duty: true) }
 
-  def self.available_capacity
-    where("emergency_code IS NULL")
-  end
+  scope :available, -> { where(emergency_code: nil) }
 
-  def self.on_duty_capacity
-    where(on_duty: true)
-  end
-
-  def self.available_and_on_duty_capacity
-    where("emergency_code IS NULL").where(on_duty: true)
-  end
+  scope :by_type, -> (type = nil) { where(type: type) }
+  
+  scope :with_capacity, -> (capacity = 0) { where('capacity <= ?', capacity) }
 
   def self.capacity_report
     [
-      total_capacity.sum(:capacity), 
-      available_capacity.sum(:capacity), 
-      on_duty_capacity.sum(:capacity), 
-      available_and_on_duty_capacity.sum(:capacity)
+      all.sum(:capacity), 
+      available.sum(:capacity), 
+      on_duty.sum(:capacity), 
+      on_duty.available.sum(:capacity)
     ]
   end
 end
