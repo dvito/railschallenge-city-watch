@@ -1,3 +1,2 @@
 class Medical < Responder
-
 end

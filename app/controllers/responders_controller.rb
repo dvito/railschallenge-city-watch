@@ -4,15 +4,15 @@ class RespondersController < ApplicationController
   # GET /responders
   # GET /responders.json
   def index
-    @responders = Responder.all
-    respond_to do |format|
-      format.json {
-        if params[:show] == "capacity"
-          render "capacities"
-        else 
-          render "index"
-        end
-      }
+    if params[:show] == 'capacity'
+      respond_to do |format|
+        format.json { render :capacities, status: :ok }
+      end
+    else
+      @responders = Responder.all
+      respond_to do |format|
+        format.json { render :index, status: :ok }
+      end
     end
   end
 

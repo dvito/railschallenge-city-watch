@@ -28,7 +28,7 @@ class EmergenciesIndexTest < ActionDispatch::IntegrationTest
     assert_equal 200, response.status
 
     json_response = JSON.parse(body)
-    
+
     assert_equal([1, 3], json_response['full_responses'])
     # ...where [1, 3] are NOT database ids, if that what you're expecting.
     #

@@ -1,15 +1,14 @@
 class Responder < ActiveRecord::Base
+  self.primary_key = 'name'
 
-  self.primary_key = "name"
-
-  belongs_to :emergency, foreign_key: "emergency_code"
+  belongs_to :emergency, foreign_key: 'emergency_code'
 
   validates :type,
             presence: true
   validates :name,
             presence: true,
             uniqueness: true
-  validates :capacity, 
+  validates :capacity,
             presence: true,
             inclusion: { in: 1..5 }
 
@@ -18,5 +17,4 @@ class Responder < ActiveRecord::Base
   scope :available, -> { where(emergency: nil) }
 
   scope :by_type, -> (type = nil) { where(type: type) }
-
 end

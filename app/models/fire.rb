@@ -1,4 +1,2 @@
 class Fire < Responder
-
-
 end
