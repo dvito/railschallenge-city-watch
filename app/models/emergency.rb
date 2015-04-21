@@ -29,17 +29,24 @@ class Emergency < ActiveRecord::Base
   end
 
   def dispatch_by_type_and_severity(type, severity)
-    if type.constantize.on_duty.available.find_by(capacity: severity)
-      responders << type.constantize.on_duty.available.find_by(capacity: severity)
-      return true
-    else
-      type.constantize.on_duty.available.order(capacity: :desc).each do |responder|
-        severity -= responder.capacity
-        responders << responder
-        return true if severity <= 0
-      end
-      return false
+    return true if dispatch_exact_match(type, severity)
+    return true if dispatch_as_capacity_allows(type, severity)
+    false
+  end
+
+  def dispatch_exact_match(type, severity)
+    return false unless type.constantize.on_duty.available.find_by(capacity: severity)
+    responders << type.constantize.on_duty.available.find_by(capacity: severity)
+    true
+  end
+
+  def dispatch_as_capacity_allows(type, severity)
+    type.constantize.on_duty.available.order(capacity: :desc).each do |responder|
+      severity -= responder.capacity
+      responders << responder
+      return true if severity <= 0
     end
+    false
   end
 
   def relieve_responders_after_emergency
