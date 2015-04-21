@@ -15,57 +15,36 @@ class Emergency < ActiveRecord::Base
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  after_create :dispatch
-  after_save :relieve_responders, 
-    if: Proc.new { |model| model.resolved_at != nil }
+  before_create :dispatch
+  after_save :relieve_responders_after_emergency, if: :resolved_at_changed?
   
+  scope :full_responses, -> { where(full_response: true) }
+
   def dispatch
+    self.full_response = true
     ["Fire", "Police", "Medical"].each do |type|
       if send("#{type.downcase}_severity") > 0
-        dispatch_by_type_and_severity(type, send("#{type.downcase}_severity"))
-      end
-      check_type_and_severity(type, send("#{type.downcase}_severity"))
-    end
-    save!
-  end
-
-  def check_type_and_severity(type, severity)
-    if responders && responders.by_type(type).sum(:capacity) >= severity 
-      full_response = true 
-    else
-      if severity == 0
-        full_response = true 
-      else
-        full_response = false
+        self.full_response = dispatch_by_type_and_severity(type, send("#{type.downcase}_severity"))
       end
     end
   end
 
   def dispatch_by_type_and_severity(type, severity)
-    type.constantize.on_duty.available.with_capacity(severity).order("capacity ASC").each do |responder|
-        if severity > 0
-          responders << responder
-          severity -= responder.capacity
-        end
-    end
-    type.constantize.on_duty.available.
-      order("capacity DESC").each do |responder|
-      if severity > 0
-        responders << responder
+    if type.constantize.on_duty.available.find_by(capacity: severity)
+      responders << type.constantize.on_duty.available.find_by(capacity: severity)
+      return true
+    else
+      type.constantize.on_duty.available.order(capacity: :desc).each do |responder|
         severity -= responder.capacity
+        responders << responder
+        return true if severity <= 0
       end
+      return false
     end
   end
 
-  def self.full_responses
-    [ 
-      Emergency.where(full_response: true).count, 
-      Emergency.all.count 
-    ]
-  end
-
-  def relieve_responders
-    responders = []
+  def relieve_responders_after_emergency
+    responders.clear
   end
 
 end

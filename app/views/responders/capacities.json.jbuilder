@@ -1,5 +1,5 @@
 json.capacity do
-  json.set! "Fire", Fire.capacity_report
-  json.set! "Police", Police.capacity_report
-  json.set! "Medical", Medical.capacity_report
+  json.set! "Fire", capacity_report(Fire)
+  json.set! "Police", capacity_report(Police)
+  json.set! "Medical", capacity_report(Medical)
 end
