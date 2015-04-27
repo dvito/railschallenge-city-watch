@@ -42,8 +42,6 @@ class EmergenciesController < ApplicationController
     end
   end
 
-  # DELETE /emergencies/1
-  # DELETE /emergencies/1.json
   def destroy
     @emergency.destroy
     head :no_content

@@ -22,8 +22,8 @@ class Emergency < ActiveRecord::Base
   def dispatch
     self.full_response = true
     Responder::TYPES.each do |type|
-      if send("#{type.downcase}_severity") > 0
-        self.full_response = dispatch_by_type_and_severity(type, send("#{type.downcase}_severity"))
+      if self["#{type.downcase}_severity"] > 0
+        self.full_response = dispatch_by_type_and_severity(type, self["#{type.downcase}_severity"])
       end
     end
   end
