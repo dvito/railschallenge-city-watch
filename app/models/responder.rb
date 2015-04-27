@@ -22,4 +22,13 @@ class Responder < ActiveRecord::Base
   scope :available, -> { where(emergency: nil) }
 
   scope :by_type, -> (type = nil) { where(type: type) }
+
+  def self.capacity_report
+    [
+      sum(:capacity),
+      available.sum(:capacity),
+      on_duty.sum(:capacity),
+      available.on_duty.sum(:capacity)
+    ]
+  end
 end

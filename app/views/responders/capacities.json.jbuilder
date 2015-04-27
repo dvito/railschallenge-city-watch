@@ -1,5 +1,5 @@
 json.capacity do
   Responder::TYPES.each do |type|
-    json.set! type, capacity_report(type)
+    json.set! type, Responder.by_type(type).capacity_report
   end
 end
