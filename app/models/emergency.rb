@@ -21,7 +21,7 @@ class Emergency < ActiveRecord::Base
 
   def dispatch
     self.full_response = true
-    %w(Fire Police Medical).each do |type|
+    Responder::TYPES.each do |type|
       if send("#{type.downcase}_severity") > 0
         self.full_response = dispatch_by_type_and_severity(type, send("#{type.downcase}_severity"))
       end
@@ -35,13 +35,13 @@ class Emergency < ActiveRecord::Base
   end
 
   def dispatch_exact_match(type, severity)
-    return false unless type.constantize.on_duty.available.find_by(capacity: severity)
-    responders << type.constantize.on_duty.available.find_by(capacity: severity)
+    return false unless Responder.by_type(type).on_duty.available.find_by(capacity: severity)
+    responders << Responder.by_type(type).on_duty.available.find_by(capacity: severity)
     true
   end
 
   def dispatch_as_capacity_allows(type, severity)
-    type.constantize.on_duty.available.order(capacity: :desc).each do |responder|
+    Responder.by_type(type).on_duty.available.order(capacity: :desc).each do |responder|
       severity -= responder.capacity
       responders << responder
       return true if severity <= 0

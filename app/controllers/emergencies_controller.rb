@@ -1,6 +1,5 @@
 class EmergenciesController < ApplicationController
   before_action :set_emergency, only: [:show, :update, :destroy]
-
   # GET /emergencies
   # GET /emergencies.json
   def index
@@ -10,9 +9,7 @@ class EmergenciesController < ApplicationController
   # GET /emergencies/1
   # GET /emergencies/1.json
   def show
-    respond_to do |format|
-      format.json { render :show, status: :ok, location: @emergency }
-    end
+    render :show, status: :ok, location: @emergency
   end
 
   # GET /emergencies/new
@@ -28,25 +25,20 @@ class EmergenciesController < ApplicationController
   # POST /emergencies.json
   def create
     @emergency = Emergency.new(create_emergency_params)
-
-    respond_to do |format|
-      if @emergency.save
-        format.json { render :show, status: :created, location: @emergency }
-      else
-        format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
-      end
+    if @emergency.save
+      render :show, status: :created, location: @emergency
+    else
+      render json: { message: @emergency.errors }, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /emergencies/1
   # PATCH/PUT /emergencies/1.json
   def update
-    respond_to do |format|
-      if @emergency.update(update_emergency_params)
-        format.json { render :show, status: :ok, location: @emergency }
-      else
-        format.json { render json: { message: @emergency.errors }, status: :unprocessable_entity }
-      end
+    if @emergency.update(update_emergency_params)
+      render :show, status: :ok, location: @emergency
+    else
+      render json: { message: @emergency.errors }, status: :unprocessable_entity
     end
   end
 
@@ -54,9 +46,7 @@ class EmergenciesController < ApplicationController
   # DELETE /emergencies/1.json
   def destroy
     @emergency.destroy
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

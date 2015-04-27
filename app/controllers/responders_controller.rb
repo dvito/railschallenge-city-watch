@@ -5,23 +5,17 @@ class RespondersController < ApplicationController
   # GET /responders.json
   def index
     if params[:show] == 'capacity'
-      respond_to do |format|
-        format.json { render :capacities, status: :ok }
-      end
+      render :capacities, status: :ok
     else
       @responders = Responder.all
-      respond_to do |format|
-        format.json { render :index, status: :ok }
-      end
+      render :index, status: :ok
     end
   end
 
   # GET /responders/1
   # GET /responders/1.json
   def show
-    respond_to do |format|
-      format.json { render :show, status: :ok, location: responder_url(@responder) }
-    end
+    render :show, status: :ok, location: responder_url(@responder)
   end
 
   # GET /responders/new
@@ -37,25 +31,20 @@ class RespondersController < ApplicationController
   # POST /responders.json
   def create
     @responder = Responder.new(create_responder_params)
-
-    respond_to do |format|
-      if @responder.save
-        format.json { render :show, status: :created, location: responder_url(@responder) }
-      else
-        format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
-      end
+    if @responder.save
+      render :show, status: :created, location: responder_url(@responder)
+    else
+      render json: { message: @responder.errors }, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /responders/1
   # PATCH/PUT /responders/1.json
   def update
-    respond_to do |format|
-      if @responder.update(update_responder_params)
-        format.json { render :show, status: :ok, location: responder_url(@responder) }
-      else
-        format.json { render json: { message: @responder.errors }, status: :unprocessable_entity }
-      end
+    if @responder.update(update_responder_params)
+      render :show, status: :ok, location: responder_url(@responder)
+    else
+      render json: { message: @responder.errors }, status: :unprocessable_entity
     end
   end
 
@@ -63,9 +52,7 @@ class RespondersController < ApplicationController
   # DELETE /responders/1.json
   def destroy
     @responder.try(:destroy)
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

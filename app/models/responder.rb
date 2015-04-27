@@ -1,6 +1,11 @@
 class Responder < ActiveRecord::Base
   self.primary_key = 'name'
 
+  # Disable STI
+  self.inheritance_column = :_type_
+
+  TYPES = %w(Fire Police Medical)
+
   belongs_to :emergency, foreign_key: 'emergency_code'
 
   validates :type,

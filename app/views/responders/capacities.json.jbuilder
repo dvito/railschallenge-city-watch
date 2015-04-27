@@ -1,5 +1,5 @@
 json.capacity do
-  json.set! "Fire", capacity_report(Fire)
-  json.set! "Police", capacity_report(Police)
-  json.set! "Medical", capacity_report(Medical)
+  Responder::TYPES.each do |type|
+    json.set! type, capacity_report(type)
+  end
 end
