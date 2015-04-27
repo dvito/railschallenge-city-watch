@@ -52,4 +52,11 @@ class Emergency < ActiveRecord::Base
   def relieve_responders_after_emergency
     responders.clear
   end
+
+  def self.dispatch_report
+    [
+      Emergency.full_responses.count,
+      Emergency.count
+    ]
+  end
 end
