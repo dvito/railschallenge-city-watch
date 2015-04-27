@@ -15,7 +15,7 @@ class RespondersController < ApplicationController
   # GET /responders/1
   # GET /responders/1.json
   def show
-    render :show, status: :ok, location: responder_url(@responder)
+    render :show, status: :ok, location: @responder
   end
 
   # GET /responders/new
@@ -32,7 +32,7 @@ class RespondersController < ApplicationController
   def create
     @responder = Responder.new(create_responder_params)
     if @responder.save
-      render :show, status: :created, location: responder_url(@responder)
+      render :show, status: :created, location: @responder
     else
       render json: { message: @responder.errors }, status: :unprocessable_entity
     end
@@ -42,7 +42,7 @@ class RespondersController < ApplicationController
   # PATCH/PUT /responders/1.json
   def update
     if @responder.update(update_responder_params)
-      render :show, status: :ok, location: responder_url(@responder)
+      render :show, status: :ok, location: @responder
     else
       render json: { message: @responder.errors }, status: :unprocessable_entity
     end
